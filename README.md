@@ -193,3 +193,8 @@ finmind/
 ---
 
 MIT Licensed. Built with ❤️.
+
+## Goal-Based Savings Tracking & Milestones
+
+- **Endpoints**: `GET/POST /savings-goals`, `GET/PATCH/DELETE /savings-goals/:id`, `POST /savings-goals/:id/contribute`, `POST /savings-goals/:id/milestones`
+- **Features**: Automatic 25%/50%/75%/100% milestone generation, custom milestone targets, real-time contribution tracking, and automatic milestone completion detection.
