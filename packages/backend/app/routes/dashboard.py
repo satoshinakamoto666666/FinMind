@@ -176,3 +176,17 @@ def _is_valid_month(ym: str) -> bool:
         return False
     m = int(month)
     return 1 <= m <= 12
+
+
+@bp.get("/multi-account")
+@jwt_required()
+def dashboard_multi_account():
+    from ..services.accounts import build_multi_account_overview
+
+    uid = int(get_jwt_identity())
+    ym = (request.args.get("month") or date.today().strftime("%Y-%m")).strip()
+    if not _is_valid_month(ym):
+        return jsonify(error="invalid month, expected YYYY-MM"), 400
+    acc_id_raw = request.args.get("account_id")
+    account_id = int(acc_id_raw) if acc_id_raw and acc_id_raw.isdigit() else None
+    return jsonify(build_multi_account_overview(uid, ym=ym, account_id=account_id))

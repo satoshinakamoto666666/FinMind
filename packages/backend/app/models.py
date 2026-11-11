@@ -27,10 +27,54 @@ class Category(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
+class AccountType(str, Enum):
+    CHECKING = "CHECKING"
+    SAVINGS = "SAVINGS"
+    CREDIT_CARD = "CREDIT_CARD"
+    WALLET = "WALLET"
+    INVESTMENT = "INVESTMENT"
+    CASH = "CASH"
+
+
+class FinancialAccount(db.Model):
+    __tablename__ = "financial_accounts"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    account_type = db.Column(
+        db.String(30), default=AccountType.CHECKING.value, nullable=False
+    )
+    institution = db.Column(db.String(120), nullable=True)
+    currency = db.Column(db.String(10), default="INR", nullable=False)
+    initial_balance = db.Column(db.Numeric(12, 2), default=0, nullable=False)
+    is_archived = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class AccountTransfer(db.Model):
+    __tablename__ = "account_transfers"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    from_account_id = db.Column(
+        db.Integer, db.ForeignKey("financial_accounts.id"), nullable=False
+    )
+    to_account_id = db.Column(
+        db.Integer, db.ForeignKey("financial_accounts.id"), nullable=False
+    )
+    amount = db.Column(db.Numeric(12, 2), nullable=False)
+    currency = db.Column(db.String(10), default="INR", nullable=False)
+    notes = db.Column(db.String(300), nullable=True)
+    transferred_at = db.Column(db.Date, default=date.today, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
 class Expense(db.Model):
     __tablename__ = "expenses"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    account_id = db.Column(
+        db.Integer, db.ForeignKey("financial_accounts.id"), nullable=True
+    )
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=True)
     amount = db.Column(db.Numeric(12, 2), nullable=False)
     currency = db.Column(db.String(10), default="INR", nullable=False)

@@ -193,3 +193,8 @@ finmind/
 ---
 
 MIT Licensed. Built with ❤️.
+
+
+## Multi-Account Financial Overview Dashboard (#132)
+- Support multiple accounts (`CHECKING`, `SAVINGS`, `CREDIT_CARD`, `WALLET`, `INVESTMENT`, `CASH`) with per-account cashflow and inter-account transfers (`POST /accounts/transfers`)
+- Consolidated multi-account overview endpoint (`GET /dashboard/multi-account` and `GET /accounts/overview`) with multi-currency net worth normalization and asset/liability breakdown
