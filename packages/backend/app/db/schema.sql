@@ -123,3 +123,27 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   action VARCHAR(100) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+
+CREATE TABLE IF NOT EXISTS gdpr_audit_logs (
+  id SERIAL PRIMARY KEY,
+  user_id INT,
+  subject_hash VARCHAR(64) NOT NULL,
+  action VARCHAR(100) NOT NULL,
+  ip_address VARCHAR(64),
+  user_agent VARCHAR(255),
+  details VARCHAR(1000),
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_gdpr_audit_subject ON gdpr_audit_logs(subject_hash, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS deletion_requests (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status VARCHAR(32) NOT NULL DEFAULT 'PENDING',
+  confirmation_token VARCHAR(128) UNIQUE NOT NULL,
+  reason VARCHAR(500),
+  requested_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  scheduled_for TIMESTAMP NOT NULL,
+  cancelled_at TIMESTAMP
+);
