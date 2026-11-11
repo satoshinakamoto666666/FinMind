@@ -193,3 +193,15 @@ finmind/
 ---
 
 MIT Licensed. Built with ❤️.
+
+
+## Smart Weekly Financial Digest (`#121`)
+
+FinMind includes an automated weekly financial digest service and dashboard view (`/digest`) that aggregates expenses, income, category velocity, 7-day daily breakdowns, upcoming bills, and AI/heuristic insights.
+
+### Endpoints
+
+- `GET /digest/weekly?week=YYYY-WNN&currency=INR` (also aliased at `GET /insights/weekly-digest`)
+  - Returns `total_spent`, `total_income`, `net_flow`, `daily_average`, `previous_week_spent`, `week_over_week_change`, `week_over_week_change_pct`, `category_breakdown` (with `UP` / `DOWN` / `FLAT` / `NEW` / `GONE` trends), `daily_breakdown`, `upcoming_bills`, `trends`, and `insights`.
+- `POST /digest/weekly/send`
+  - Dispatches the weekly summary notification via `email` or `whatsapp` and logs the delivery in `reminders`.

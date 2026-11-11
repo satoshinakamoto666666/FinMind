@@ -7,6 +7,10 @@ def monthly_summary_key(user_id: int, ym: str) -> str:
     return f"user:{user_id}:monthly_summary:{ym}"
 
 
+def weekly_digest_key(user_id: int, week: str, currency: str = "ALL") -> str:
+    return f"user:{user_id}:weekly_digest:{week}:{currency}"
+
+
 def categories_key(user_id: int) -> str:
     return f"user:{user_id}:categories"
 
@@ -25,23 +29,32 @@ def dashboard_summary_key(user_id: int, ym: str) -> str:
 
 def cache_set(key: str, value, ttl_seconds: int | None = None):
     payload = json.dumps(value)
-    if ttl_seconds:
-        redis_client.setex(key, ttl_seconds, payload)
-    else:
-        redis_client.set(key, payload)
+    try:
+        if ttl_seconds:
+            redis_client.setex(key, ttl_seconds, payload)
+        else:
+            redis_client.set(key, payload)
+    except Exception:
+        pass
 
 
 def cache_get(key: str):
-    raw = redis_client.get(key)
-    return json.loads(raw) if raw else None
+    try:
+        raw = redis_client.get(key)
+        return json.loads(raw) if raw else None
+    except Exception:
+        return None
 
 
 def cache_delete_patterns(patterns: Iterable[str]):
     for pattern in patterns:
-        cursor = 0
-        while True:
-            cursor, keys = redis_client.scan(cursor=cursor, match=pattern, count=100)
-            if keys:
-                redis_client.delete(*keys)
-            if cursor == 0:
-                break
+        try:
+            cursor = 0
+            while True:
+                cursor, keys = redis_client.scan(cursor=cursor, match=pattern, count=100)
+                if keys:
+                    redis_client.delete(*keys)
+                if cursor == 0:
+                    break
+        except Exception:
+            continue
