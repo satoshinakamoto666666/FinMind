@@ -71,6 +71,7 @@ def create_expense():
         currency=(data.get("currency") or (user.preferred_currency if user else "INR")),
         expense_type=str(data.get("expense_type") or "EXPENSE").upper(),
         category_id=data.get("category_id"),
+        account_id=data.get("account_id"),
         notes=description,
         spent_at=date.fromisoformat(raw_date) if raw_date else date.today(),
     )
@@ -317,6 +318,7 @@ def _expense_to_dict(e: Expense) -> dict:
         "amount": float(e.amount),
         "currency": e.currency,
         "category_id": e.category_id,
+        "account_id": e.account_id,
         "expense_type": e.expense_type,
         "description": e.notes or "",
         "date": e.spent_at.isoformat(),

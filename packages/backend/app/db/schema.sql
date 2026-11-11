@@ -123,3 +123,30 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   action VARCHAR(100) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Multi-account financial overview dashboard (#132)
+CREATE TABLE IF NOT EXISTS financial_accounts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(120) NOT NULL,
+    account_type VARCHAR(30) NOT NULL DEFAULT 'CHECKING',
+    institution VARCHAR(120),
+    currency VARCHAR(10) NOT NULL DEFAULT 'INR',
+    initial_balance NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    is_archived BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS account_transfers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    from_account_id INTEGER NOT NULL REFERENCES financial_accounts(id) ON DELETE CASCADE,
+    to_account_id INTEGER NOT NULL REFERENCES financial_accounts(id) ON DELETE CASCADE,
+    amount NUMERIC(12, 2) NOT NULL,
+    currency VARCHAR(10) NOT NULL DEFAULT 'INR',
+    notes VARCHAR(300),
+    transferred_at DATE NOT NULL DEFAULT CURRENT_DATE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE expenses ADD COLUMN IF NOT EXISTS account_id INTEGER REFERENCES financial_accounts(id) ON DELETE SET NULL;
