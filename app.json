@@ -1,0 +1,19 @@
+{
+  "name": "FinMind Money OS",
+  "description": "AI-powered personal finance, budgeting, bills, and insights platform",
+  "repository": "https://github.com/rohitdash08/FinMind",
+  "stack": "container",
+  "addons": [
+    "heroku-postgresql:essential-0",
+    "heroku-redis:mini"
+  ],
+  "env": {
+    "JWT_SECRET": {
+      "description": "JWT signing secret (min 32 characters)",
+      "generator": "secret"
+    },
+    "LOG_LEVEL": {
+      "value": "INFO"
+    }
+  }
+}

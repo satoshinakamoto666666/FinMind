@@ -1,0 +1,28 @@
+location: eastus
+type: Microsoft.App/containerApps
+name: finmind-backend
+properties:
+  configuration:
+    ingress:
+      external: true
+      targetPort: 8000
+      transport: auto
+  template:
+    containers:
+      - name: finmind-backend
+        image: ghcr.io/rohitdash08/finmind-backend:latest
+        resources:
+          cpu: 0.5
+          memory: 1.0Gi
+        probes:
+          - type: Liveness
+            httpGet:
+              path: /health
+              port: 8000
+          - type: Readiness
+            httpGet:
+              path: /health/ready
+              port: 8000
+    scale:
+      minReplicas: 1
+      maxReplicas: 6

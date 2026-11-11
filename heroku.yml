@@ -1,0 +1,15 @@
+setup:
+  addons:
+    - plan: heroku-postgresql:essential-0
+      as: DATABASE
+    - plan: heroku-redis:mini
+      as: REDIS
+build:
+  docker:
+    web: packages/backend/Dockerfile
+release:
+  image: web
+  command:
+    - python -m flask --app wsgi:app init-db
+run:
+  web: gunicorn --workers=2 --threads=4 --bind 0.0.0.0:$PORT wsgi:app

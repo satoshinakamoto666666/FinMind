@@ -1,0 +1,78 @@
+namespace: finmind
+
+backend:
+  image:
+    repository: ghcr.io/rohitdash08/finmind-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 2
+  port: 8000
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
+
+frontend:
+  image:
+    repository: ghcr.io/rohitdash08/finmind-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 2
+  port: 80
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+postgres:
+  enabled: true
+  image: postgres:16-alpine
+  storage: 10Gi
+  user: finmind
+  password: change-this-postgres-password
+  database: finmind
+
+redis:
+  enabled: true
+  image: redis:7-alpine
+  port: 6379
+
+secrets:
+  jwtSecret: change-this-jwt-secret-key-min-32-chars
+  geminiApiKey: ""
+
+config:
+  logLevel: INFO
+  geminiModel: gemini-1.5-flash
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  host: finmind.example.com
+  apiHost: api.finmind.example.com
+  tls:
+    enabled: true
+    secretName: finmind-tls-secret
+
+observability:
+  enabled: true
+  serviceMonitor:
+    enabled: false
