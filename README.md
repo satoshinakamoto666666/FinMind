@@ -193,3 +193,14 @@ finmind/
 ---
 
 MIT Licensed. Built with ❤️.
+
+
+## GDPR-Ready PII Export & Irreversible Deletion Workflow (`#76`)
+
+FinMind provides full GDPR Article 15 (Right of Access), Article 17 (Right to Erasure), and Article 20 (Data Portability) compliance under `/gdpr`:
+
+- `GET /gdpr/export?format=json|zip`: Generates a SHA-256 checksummed export package containing all user personal data (`profile`, `categories`, `expenses`, `recurring_expenses`, `bills`, `reminders`, `subscriptions`, `ad_impressions`, `audit_logs`) in JSON or multi-CSV ZIP archive format.
+- `POST /gdpr/delete/request` & `POST /gdpr/delete/cancel`: Two-step deletion workflow with configurable grace period and cryptographic confirmation token.
+- `POST /gdpr/delete/confirm` (and `DELETE /gdpr/delete`): Irreversible cascading erasure across all user tables + Redis cache invalidation.
+- `POST /gdpr/anonymize`: Scrubs personal identifiers while preserving anonymized aggregate ledger records.
+- `GET /gdpr/audit-logs`: Immutable compliance audit log (`gdpr_audit_logs`) keyed by anonymized `subject_hash` that survives account deletion.

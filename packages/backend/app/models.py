@@ -133,3 +133,28 @@ class AuditLog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     action = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class GdprAuditLog(db.Model):
+    __tablename__ = "gdpr_audit_logs"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=True, index=True)
+    subject_hash = db.Column(db.String(64), nullable=False, index=True)
+    action = db.Column(db.String(100), nullable=False)
+    ip_address = db.Column(db.String(64), nullable=True)
+    user_agent = db.Column(db.String(255), nullable=True)
+    details = db.Column(db.String(1000), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class DeletionRequest(db.Model):
+    __tablename__ = "deletion_requests"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    status = db.Column(db.String(32), default="PENDING", nullable=False)
+    confirmation_token = db.Column(db.String(128), nullable=False, unique=True)
+    reason = db.Column(db.String(500), nullable=True)
+    requested_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    scheduled_for = db.Column(db.DateTime, nullable=False)
+    cancelled_at = db.Column(db.DateTime, nullable=True)
+
