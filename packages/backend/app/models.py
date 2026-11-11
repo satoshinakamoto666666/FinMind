@@ -133,3 +133,46 @@ class AuditLog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     action = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+
+class LoginEvent(db.Model):
+    __tablename__ = "login_events"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    email = db.Column(db.String(255), nullable=False)
+    ip_address = db.Column(db.String(64), nullable=False)
+    user_agent = db.Column(db.String(500), nullable=False)
+    device_fingerprint = db.Column(db.String(128), nullable=False)
+    country_code = db.Column(db.String(16), nullable=True)
+    success = db.Column(db.Boolean, default=False, nullable=False)
+    risk_score = db.Column(db.Float, default=0.0, nullable=False)
+    is_suspicious = db.Column(db.Boolean, default=False, nullable=False)
+    reasons_json = db.Column(db.String(1000), default="[]", nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class SecurityAlert(db.Model):
+    __tablename__ = "security_alerts"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    login_event_id = db.Column(db.Integer, db.ForeignKey("login_events.id"), nullable=True)
+    severity = db.Column(db.String(20), default="MEDIUM", nullable=False)
+    alert_type = db.Column(db.String(64), nullable=False)
+    reason_codes_json = db.Column(db.String(500), default="[]", nullable=False)
+    message = db.Column(db.String(500), nullable=False)
+    acknowledged = db.Column(db.Boolean, default=False, nullable=False)
+    acknowledged_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class TrustedDevice(db.Model):
+    __tablename__ = "trusted_devices"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    device_fingerprint = db.Column(db.String(128), nullable=False)
+    label = db.Column(db.String(120), nullable=True)
+    user_agent = db.Column(db.String(500), nullable=False)
+    last_ip = db.Column(db.String(64), nullable=True)
+    trusted_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    last_seen_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
