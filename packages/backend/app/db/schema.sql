@@ -123,3 +123,43 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   action VARCHAR(100) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Login anomaly detection & suspicious activity alerts (#124)
+CREATE TABLE IF NOT EXISTS login_events (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    email VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(64) NOT NULL,
+    user_agent VARCHAR(500) NOT NULL,
+    device_fingerprint VARCHAR(128) NOT NULL,
+    country_code VARCHAR(16),
+    success BOOLEAN NOT NULL DEFAULT FALSE,
+    risk_score DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    is_suspicious BOOLEAN NOT NULL DEFAULT FALSE,
+    reasons_json VARCHAR(1000) NOT NULL DEFAULT '[]',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS security_alerts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    login_event_id INTEGER REFERENCES login_events(id) ON DELETE SET NULL,
+    severity VARCHAR(20) NOT NULL DEFAULT 'MEDIUM',
+    alert_type VARCHAR(64) NOT NULL,
+    reason_codes_json VARCHAR(500) NOT NULL DEFAULT '[]',
+    message VARCHAR(500) NOT NULL,
+    acknowledged BOOLEAN NOT NULL DEFAULT FALSE,
+    acknowledged_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS trusted_devices (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    device_fingerprint VARCHAR(128) NOT NULL,
+    label VARCHAR(120),
+    user_agent VARCHAR(500) NOT NULL,
+    last_ip VARCHAR(64),
+    trusted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_seen_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

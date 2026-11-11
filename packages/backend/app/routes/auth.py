@@ -52,18 +52,43 @@ def register():
 
 @bp.post("/login")
 def login():
+    from ..services.login_anomaly import evaluate_and_record_login, extract_request_metadata
+
     data = request.get_json() or {}
     email = data.get("email")
     password = data.get("password")
     user = db.session.query(User).filter_by(email=email).first()
-    if not user or not check_password_hash(user.password_hash, password):
+    meta = extract_request_metadata(request)
+    if not user or not check_password_hash(user.password_hash, password or ""):
+        evaluate_and_record_login(
+            user=user,
+            email=email or "unknown",
+            success=False,
+            **meta,
+        )
         logger.warning("Login failed for email=%s", email)
         return jsonify(error="invalid credentials"), 401
+    eval_result = evaluate_and_record_login(
+        user=user,
+        email=user.email,
+        success=True,
+        **meta,
+    )
     access = create_access_token(identity=str(user.id))
     refresh = create_refresh_token(identity=str(user.id))
     _store_refresh_session(refresh, str(user.id))
-    logger.info("Login success user_id=%s", user.id)
-    return jsonify(access_token=access, refresh_token=refresh)
+    logger.info("Login success user_id=%s risk_score=%s", user.id, eval_result["risk_score"])
+    resp = {
+        "access_token": access,
+        "refresh_token": refresh,
+        "security": {
+            "risk_score": eval_result["risk_score"],
+            "is_suspicious": eval_result["is_suspicious"],
+            "reasons": eval_result["reasons"],
+            "alert": eval_result["alert"],
+        },
+    }
+    return jsonify(resp)
 
 
 @bp.get("/me")

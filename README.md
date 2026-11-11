@@ -193,3 +193,8 @@ finmind/
 ---
 
 MIT Licensed. Built with ❤️.
+
+
+## Login Anomaly Detection & Suspicious Activity Alerts (#124)
+- Real-time anomaly scoring on `/auth/login` (`NEW_IP_ADDRESS`, `NEW_DEVICE_FINGERPRINT`, `BRUTE_FORCE_BURST`, `IMPOSSIBLE_TRAVEL_GEO`)
+- Security endpoints: `GET /security/login-history`, `GET /security/alerts`, `POST /security/alerts/<id>/acknowledge`, `GET /security/login-stats`, `GET/POST /security/devices`
