@@ -193,3 +193,9 @@ finmind/
 ---
 
 MIT Licensed. Built with ❤️.
+
+
+## Resilient Background Job Retry & Monitoring (#130)
+- Exponential backoff retry policy (`5m -> 15m -> 45m`, configurable `max_retries=3`)
+- Dead-letter queue (`DEAD_LETTER`) with 1-click admin/user reset (`POST /jobs/dead-letters/<id>/reset`)
+- Execution history & telemetry endpoints (`GET /jobs/status`, `GET /jobs/reminders/stats`, `POST /jobs/reminders/run`, `GET /jobs/dead-letters`)

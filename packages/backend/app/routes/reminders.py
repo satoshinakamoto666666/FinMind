@@ -30,6 +30,12 @@ def list_reminders():
                 "send_at": r.send_at.isoformat(),
                 "sent": r.sent,
                 "channel": r.channel,
+                "retry_count": r.retry_count,
+                "max_retries": r.max_retries,
+                "last_error": r.last_error,
+                "next_retry_at": r.next_retry_at.isoformat() if r.next_retry_at else None,
+                "failed": r.failed,
+                "retry_status": r.retry_status,
             }
             for r in items
         ]
