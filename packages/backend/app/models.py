@@ -98,6 +98,29 @@ class Reminder(db.Model):
     send_at = db.Column(db.DateTime, nullable=False)
     sent = db.Column(db.Boolean, default=False, nullable=False)
     channel = db.Column(db.String(20), default="email", nullable=False)
+    retry_count = db.Column(db.Integer, default=0, nullable=False)
+    max_retries = db.Column(db.Integer, default=3, nullable=False)
+    last_error = db.Column(db.String(500), nullable=True)
+    last_retry_at = db.Column(db.DateTime, nullable=True)
+    next_retry_at = db.Column(db.DateTime, nullable=True)
+    failed = db.Column(db.Boolean, default=False, nullable=False)
+    retry_status = db.Column(db.String(30), default="PENDING", nullable=False)
+
+
+class BackgroundJobRun(db.Model):
+    __tablename__ = "background_job_runs"
+    id = db.Column(db.Integer, primary_key=True)
+    job_name = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    status = db.Column(db.String(30), default="SUCCEEDED", nullable=False)
+    processed_count = db.Column(db.Integer, default=0, nullable=False)
+    succeeded_count = db.Column(db.Integer, default=0, nullable=False)
+    retried_count = db.Column(db.Integer, default=0, nullable=False)
+    dead_letter_count = db.Column(db.Integer, default=0, nullable=False)
+    duration_ms = db.Column(db.Float, default=0.0, nullable=False)
+    error_message = db.Column(db.String(500), nullable=True)
+    started_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    finished_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
 class AdImpression(db.Model):
