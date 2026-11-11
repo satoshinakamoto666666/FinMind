@@ -1,6 +1,7 @@
+from sqlalchemy import text
 from flask import Flask, jsonify
 from .config import Settings
-from .extensions import db, jwt
+from .extensions import db, jwt, redis_client
 from .routes import register_routes
 from .observability import (
     Observability,
@@ -67,6 +68,32 @@ def create_app(settings: Settings | None = None) -> Flask:
     @app.get("/health")
     def health():
         return jsonify(status="ok"), 200
+
+    @app.get("/health/ready")
+    def health_ready():
+        db_ok = False
+        redis_ok = False
+        try:
+            db.session.execute(text("SELECT 1"))
+            db_ok = True
+        except Exception:
+            db_ok = False
+        try:
+            redis_ok = bool(redis_client.ping())
+        except Exception:
+            redis_ok = False
+        overall = "ok" if (db_ok and redis_ok) else "degraded"
+        code = 200 if overall == "ok" else 503
+        return (
+            jsonify(
+                status=overall,
+                components={
+                    "database": "ok" if db_ok else "error",
+                    "redis": "ok" if redis_ok else "error",
+                },
+            ),
+            code,
+        )
 
     @app.get("/metrics")
     def metrics():

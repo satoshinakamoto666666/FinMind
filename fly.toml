@@ -1,0 +1,26 @@
+app = "finmind-backend"
+primary_region = "iad"
+
+[build]
+  dockerfile = "packages/backend/Dockerfile"
+
+[env]
+  PORT = "8000"
+  LOG_LEVEL = "INFO"
+
+[deploy]
+  release_command = "python -m flask --app wsgi:app init-db"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "15s"
+    interval = "15s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
